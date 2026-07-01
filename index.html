@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Practice Ledger</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1c1b1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ledger">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c1b1a;
+    --parchment:#f1ece1;
+    --parchment-dim:#e7e0d2;
+    --brass:#c08a3e;
+    --brass-soft:#e0b877;
+    --teal:#2f5c57;
+    --rust:#b5533c;
+    --grey:#8a8478;
+    --hair:rgba(28,27,26,0.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    background-image:
+      radial-gradient(circle at 15% 8%, rgba(192,138,62,0.08), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(47,92,87,0.12), transparent 45%);
+    min-height:100vh;
+    font-family:'Inter',sans-serif;
+    color:var(--parchment);
+    padding:calc(32px + env(safe-area-inset-top)) 16px calc(64px + env(safe-area-inset-bottom));
+    -webkit-tap-highlight-color:transparent;
+  }
+  .wrap{max-width:720px;margin:0 auto;}
+
+  header{margin-bottom:28px;}
+  header .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--brass-soft); margin:0 0 6px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(28px,5vw,38px);
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  header p{margin:0;color:var(--grey);font-size:14px;max-width:46ch;}
+
+  .card{
+    background:var(--parchment);
+    color:var(--ink);
+    border-radius:14px;
+    padding:24px;
+    margin-bottom:22px;
+    box-shadow:0 20px 40px -20px rgba(0,0,0,0.5);
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute; inset:0 0 auto 0; height:4px;
+    background:linear-gradient(90deg,var(--brass),var(--teal));
+  }
+
+  .section-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--grey); margin:0 0 12px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+
+  .activity-row{display:flex; align-items:stretch; gap:10px; margin-bottom:22px;}
+  .wheel-outer{position:relative; flex:1;}
+  .wheel{
+    height:132px; overflow-y:scroll; scroll-snap-type:y mandatory;
+    -webkit-overflow-scrolling:touch;
+    border-radius:8px;
+    background:linear-gradient(var(--parchment-dim),var(--parchment-dim)) padding-box;
+    scrollbar-width:none;
+  }
+  .wheel::-webkit-scrollbar{display:none;}
+  .wheel-pad{height:44px;}
+  .wheel-item{
+    height:44px; display:flex; align-items:center; justify-content:center;
+    scroll-snap-align:center;
+    font-size:15px; color:var(--grey); cursor:pointer;
+    transition:color .15s, font-size .15s, font-weight .15s;
+    text-align:center; padding:0 8px;
+  }
+  .wheel-item.center{
+    color:var(--ink); font-weight:600; font-size:17px;
+  }
+  .wheel-num .wheel-item{font-family:'JetBrains Mono',monospace;}
+  .wheel-outer::before, .wheel-outer::after{
+    content:""; position:absolute; left:0; right:0; height:44px; pointer-events:none; z-index:2;
+  }
+  .wheel-outer::before{ top:0; background:linear-gradient(var(--parchment),rgba(241,236,225,0)); }
+  .wheel-outer::after{ bottom:0; background:linear-gradient(rgba(241,236,225,0),var(--parchment)); }
+  .wheel-frame{
+    position:absolute; left:6px; right:6px; top:44px; height:44px;
+    border-top:1px solid var(--brass); border-bottom:1px solid var(--brass);
+    pointer-events:none; z-index:1;
+  }
+  .add-activity-btn{
+    width:44px; align-self:flex-start; margin-top:0;
+    background:var(--ink); color:var(--brass-soft);
+    border:none; border-radius:8px; font-size:20px; cursor:pointer;
+    height:132px; line-height:132px; text-align:center;
+    flex-shrink:0;
+  }
+  .add-activity-btn:hover{background:#000;}
+
+  .new-activity-form{
+    display:none; gap:8px; margin:-10px 0 18px; align-items:center;
+  }
+  .new-activity-form.open{display:flex;}
+  .new-activity-form input{
+    flex:1; padding:10px 12px; border-radius:8px; border:1px solid var(--hair);
+    font-family:'Inter',sans-serif; font-size:14px; background:#fff;
+  }
+  .new-activity-form button{
+    padding:10px 14px; border-radius:8px; border:none; cursor:pointer;
+    font-family:'Inter',sans-serif; font-size:13px; font-weight:600;
+  }
+  .na-confirm{background:var(--teal); color:#fff;}
+  .na-cancel{background:transparent; color:var(--grey);}
+
+  .time-row{display:flex; gap:10px; margin-bottom:6px;}
+  .time-col{flex:1; text-align:center;}
+  .time-col .unit-label{
+    font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--grey); margin-bottom:6px;
+  }
+
+  .log-btn{
+    width:100%; margin-top:18px; padding:14px; border:none; border-radius:10px;
+    background:var(--brass); color:var(--ink); font-family:'Fraunces',serif;
+    font-weight:600; font-size:16px; letter-spacing:.02em; cursor:pointer;
+    box-shadow:0 8px 18px -8px rgba(192,138,62,0.6);
+    transition:transform .1s, box-shadow .1s;
+  }
+  .log-btn:active{transform:translateY(1px) scale(.995); box-shadow:0 4px 10px -6px rgba(192,138,62,0.6);}
+
+  .log-confirm{
+    text-align:center; font-family:'JetBrains Mono',monospace; font-size:12px;
+    color:var(--teal); height:16px; margin-top:8px;
+  }
+
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th{
+    text-align:right; font-family:'JetBrains Mono',monospace; font-weight:500;
+    font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--grey);
+    padding:0 0 10px; border-bottom:1px solid var(--hair);
+  }
+  th:first-child, td:first-child{text-align:left;}
+  td{
+    padding:12px 0; border-bottom:1px solid var(--hair);
+    font-family:'JetBrains Mono',monospace; text-align:right; font-size:13px;
+  }
+  td.activity-name{
+    font-family:'Fraunces',serif; font-size:15px; font-weight:500; text-align:left;
+    color:var(--ink);
+  }
+  tr:last-child td{border-bottom:none;}
+  .empty-row td{text-align:center; color:var(--grey); font-family:'Inter',sans-serif; padding:24px 0;}
+  .total-cell.zero{color:#c3bcac;}
+
+  .recent-list{list-style:none; margin:0; padding:0;}
+  .recent-list li{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:9px 0; border-bottom:1px solid var(--hair); font-size:13px;
+  }
+  .recent-list li:last-child{border-bottom:none;}
+  .recent-left{display:flex; gap:10px; align-items:baseline;}
+  .recent-activity{font-family:'Fraunces',serif; font-weight:500; color:var(--ink);}
+  .recent-time{font-family:'JetBrains Mono',monospace; color:var(--grey); font-size:12px;}
+  .recent-dur{font-family:'JetBrains Mono',monospace; font-weight:600;}
+  .delete-btn{
+    border:none; background:none; color:var(--rust); cursor:pointer;
+    font-size:16px; padding:2px 6px; line-height:1; opacity:.6;
+  }
+  .delete-btn:hover{opacity:1;}
+
+  .status{font-size:12px; color:var(--grey); text-align:center; margin-top:6px; font-family:'JetBrains Mono',monospace;}
+  .install-hint{
+    font-size:12px; color:var(--grey); text-align:center; margin-top:18px;
+    font-family:'Inter',sans-serif; line-height:1.6; max-width:44ch; margin-left:auto; margin-right:auto;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Session Log</p>
+    <h1>Practice Ledger</h1>
+    <p>Pick an activity, dial in the time, and log the session. Totals tally up below.</p>
+  </header>
+
+  <div class="card">
+    <p class="section-label">Activity</p>
+    <div class="activity-row">
+      <div class="wheel-outer">
+        <div class="wheel" id="activityWheel"></div>
+        <div class="wheel-frame"></div>
+      </div>
+      <button class="add-activity-btn" id="addActivityBtn" title="Add activity">+</button>
+    </div>
+
+    <div class="new-activity-form" id="newActivityForm">
+      <input type="text" id="newActivityInput" placeholder="New activity name" maxlength="40">
+      <button class="na-confirm" id="naConfirm">Add</button>
+      <button class="na-cancel" id="naCancel">Cancel</button>
+    </div>
+
+    <p class="section-label">Duration</p>
+    <div class="time-row">
+      <div class="time-col">
+        <div class="unit-label">Hours</div>
+        <div class="wheel-outer">
+          <div class="wheel wheel-num" id="hourWheel"></div>
+          <div class="wheel-frame"></div>
+        </div>
+      </div>
+      <div class="time-col">
+        <div class="unit-label">Minutes</div>
+        <div class="wheel-outer">
+          <div class="wheel wheel-num" id="minWheel"></div>
+          <div class="wheel-frame"></div>
+        </div>
+      </div>
+      <div class="time-col">
+        <div class="unit-label">Seconds</div>
+        <div class="wheel-outer">
+          <div class="wheel wheel-num" id="secWheel"></div>
+          <div class="wheel-frame"></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="log-btn" id="logBtn">Log session</button>
+    <div class="log-confirm" id="logConfirm"></div>
+  </div>
+
+  <div class="card">
+    <p class="section-label">Totals</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Activity</th>
+          <th>Today</th>
+          <th>Week</th>
+          <th>Month</th>
+          <th>Year</th>
+          <th>All&nbsp;time</th>
+        </tr>
+      </thead>
+      <tbody id="totalsBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card" id="recentCard">
+    <p class="section-label">Recent sessions</p>
+    <ul class="recent-list" id="recentList"></ul>
+  </div>
+
+  <div class="status" id="statusLine"></div>
+  <p class="install-hint" id="installHint"></p>
+</div>
+
+<script>
+(function(){
+  const ITEM_H = 44;
+  const STORAGE_KEY_ACTIVITIES = 'pl_activities';
+  const STORAGE_KEY_SESSIONS = 'pl_sessions';
+  let activities = [];
+  let sessions = [];
+  let selectedActivityId = null;
+  let selHour = 0, selMin = 0, selSec = 0;
+
+  const statusLine = document.getElementById('statusLine');
+  function setStatus(msg, isErr){
+    statusLine.textContent = msg || '';
+    statusLine.style.color = isErr ? 'var(--rust)' : 'var(--grey)';
+  }
+
+  // ---------- storage (localStorage: synchronous, on-device, persists across closes) ----------
+  function loadData(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY_ACTIVITIES);
+      activities = raw ? JSON.parse(raw) : [
+        {id:'piano', name:'Piano'},
+        {id:'handstands', name:'Hand stands'}
+      ];
+    }catch(e){
+      console.error('Failed to load activities:', e);
+      activities = [{id:'piano', name:'Piano'}, {id:'handstands', name:'Hand stands'}];
+    }
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY_SESSIONS);
+      sessions = raw ? JSON.parse(raw) : [];
+    }catch(e){
+      console.error('Failed to load sessions:', e);
+      sessions = [];
+    }
+    if(!selectedActivityId && activities.length) selectedActivityId = activities[0].id;
+  }
+
+  function saveActivities(){
+    try{
+      localStorage.setItem(STORAGE_KEY_ACTIVITIES, JSON.stringify(activities));
+    }catch(e){
+      console.error('Failed to save activities:', e);
+      setStatus('Could not save activity list.', true);
+    }
+  }
+  function saveSessions(){
+    try{
+      localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(sessions));
+    }catch(e){
+      console.error('Failed to save sessions:', e);
+      setStatus('Could not save session.', true);
+    }
+  }
+
+  // ---------- wheel builder ----------
+  function buildWheel(container, items, initialIndex, onSettle){
+    container.innerHTML = '';
+    const padTop = document.createElement('div'); padTop.className='wheel-pad';
+    container.appendChild(padTop);
+    items.forEach((label, i) => {
+      const el = document.createElement('div');
+      el.className = 'wheel-item';
+      el.textContent = label;
+      el.dataset.index = i;
+      el.addEventListener('click', () => {
+        container.scrollTo({top: i*ITEM_H, behavior:'smooth'});
+      });
+      container.appendChild(el);
+    });
+    const padBottom = document.createElement('div'); padBottom.className='wheel-pad';
+    container.appendChild(padBottom);
+
+    function highlight(idx){
+      const kids = container.querySelectorAll('.wheel-item');
+      kids.forEach(k => k.classList.toggle('center', Number(k.dataset.index) === idx));
+    }
+
+    let scrollTimer = null;
+    container.addEventListener('scroll', () => {
+      const idx = Math.max(0, Math.min(items.length-1, Math.round(container.scrollTop / ITEM_H)));
+      highlight(idx);
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        const settledIdx = Math.max(0, Math.min(items.length-1, Math.round(container.scrollTop / ITEM_H)));
+        onSettle(settledIdx);
+      }, 120);
+    });
+
+    container.scrollTop = initialIndex * ITEM_H;
+    highlight(initialIndex);
+    onSettle(initialIndex);
+  }
+
+  function renderActivityWheel(){
+    const container = document.getElementById('activityWheel');
+    const names = activities.map(a => a.name);
+    let idx = activities.findIndex(a => a.id === selectedActivityId);
+    if(idx < 0) idx = 0;
+    buildWheel(container, names, idx, (i) => {
+      if(activities[i]) selectedActivityId = activities[i].id;
+    });
+  }
+
+  function renderTimeWheels(){
+    const hours = Array.from({length:24}, (_,i) => String(i));
+    const mins = Array.from({length:60}, (_,i) => String(i).padStart(2,'0'));
+    const secs = Array.from({length:60}, (_,i) => String(i).padStart(2,'0'));
+    buildWheel(document.getElementById('hourWheel'), hours, selHour, (i)=>{selHour=i;});
+    buildWheel(document.getElementById('minWheel'), mins, selMin, (i)=>{selMin=i;});
+    buildWheel(document.getElementById('secWheel'), secs, selSec, (i)=>{selSec=i;});
+  }
+
+  // ---------- add activity ----------
+  const addBtn = document.getElementById('addActivityBtn');
+  const form = document.getElementById('newActivityForm');
+  const input = document.getElementById('newActivityInput');
+  addBtn.addEventListener('click', () => {
+    form.classList.add('open');
+    input.value = '';
+    input.focus();
+  });
+  document.getElementById('naCancel').addEventListener('click', () => {
+    form.classList.remove('open');
+  });
+  document.getElementById('naConfirm').addEventListener('click', addNewActivity);
+  input.addEventListener('keydown', (e) => { if(e.key === 'Enter') addNewActivity(); });
+
+  function addNewActivity(){
+    const name = input.value.trim();
+    if(!name) return;
+    const id = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') + '-' + Date.now().toString(36);
+    activities.push({id, name});
+    selectedActivityId = id;
+    form.classList.remove('open');
+    saveActivities();
+    renderActivityWheel();
+    renderTotals();
+  }
+
+  // ---------- log session ----------
+  document.getElementById('logBtn').addEventListener('click', () => {
+    const seconds = selHour*3600 + selMin*60 + selSec;
+    if(!selectedActivityId){ setStatus('Add an activity first.', true); return; }
+    if(seconds <= 0){ setStatus('Dial in a duration above 0.', true); return; }
+    const entry = { id: 'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,6), activityId: selectedActivityId, seconds, ts: new Date().toISOString() };
+    sessions.push(entry);
+    saveSessions();
+    renderTotals();
+    renderRecent();
+    const confirmEl = document.getElementById('logConfirm');
+    const actName = (activities.find(a=>a.id===selectedActivityId)||{}).name || 'Activity';
+    confirmEl.textContent = `Logged ${formatDuration(seconds)} — ${actName}`;
+    setTimeout(()=>{ if(confirmEl.textContent.indexOf(actName)>-1) confirmEl.textContent=''; }, 3000);
+  });
+
+  // ---------- time helpers ----------
+  function formatDuration(totalSeconds){
+    const h = Math.floor(totalSeconds/3600);
+    const m = Math.floor((totalSeconds%3600)/60);
+    const s = totalSeconds%60;
+    if(h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    return `${m}:${String(s).padStart(2,'0')}`;
+  }
+  function startOfDay(d){ const x=new Date(d); x.setHours(0,0,0,0); return x; }
+  function startOfWeek(d){
+    const x = startOfDay(d);
+    const day = (x.getDay()+6)%7;
+    x.setDate(x.getDate()-day);
+    return x;
+  }
+  function startOfMonth(d){ const x=new Date(d); x.setDate(1); x.setHours(0,0,0,0); return x; }
+  function startOfYear(d){ const x=new Date(d); x.setMonth(0,1); x.setHours(0,0,0,0); return x; }
+
+  function sumFor(activityId, since){
+    return sessions
+      .filter(s => s.activityId === activityId && (!since || new Date(s.ts) >= since))
+      .reduce((sum,s) => sum + s.seconds, 0);
+  }
+
+  function renderTotals(){
+    const body = document.getElementById('totalsBody');
+    body.innerHTML = '';
+    if(!activities.length){
+      body.innerHTML = '<tr class="empty-row"><td colspan="6">No activities yet — add one above.</td></tr>';
+      return;
+    }
+    const now = new Date();
+    const dRanges = { today: startOfDay(now), week: startOfWeek(now), month: startOfMonth(now), year: startOfYear(now) };
+
+    activities.forEach(a => {
+      const today = sumFor(a.id, dRanges.today);
+      const week = sumFor(a.id, dRanges.week);
+      const month = sumFor(a.id, dRanges.month);
+      const year = sumFor(a.id, dRanges.year);
+      const all = sumFor(a.id, null);
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td class="activity-name">${escapeHtml(a.name)}</td>
+        <td class="total-cell ${today===0?'zero':''}">${formatDuration(today)}</td>
+        <td class="total-cell ${week===0?'zero':''}">${formatDuration(week)}</td>
+        <td class="total-cell ${month===0?'zero':''}">${formatDuration(month)}</td>
+        <td class="total-cell ${year===0?'zero':''}">${formatDuration(year)}</td>
+        <td class="total-cell ${all===0?'zero':''}">${formatDuration(all)}</td>
+      `;
+      body.appendChild(row);
+    });
+  }
+
+  function renderRecent(){
+    const list = document.getElementById('recentList');
+    list.innerHTML = '';
+    const recent = [...sessions].sort((a,b) => new Date(b.ts) - new Date(a.ts)).slice(0, 8);
+    if(!recent.length){
+      list.innerHTML = '<li style="justify-content:center;color:var(--grey);">Nothing logged yet.</li>';
+      return;
+    }
+    recent.forEach(s => {
+      const act = activities.find(a => a.id === s.activityId);
+      const li = document.createElement('li');
+      const dt = new Date(s.ts);
+      const dateStr = dt.toLocaleDateString(undefined,{month:'short',day:'numeric'}) + ' ' + dt.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+      li.innerHTML = `
+        <div class="recent-left">
+          <span class="recent-activity">${escapeHtml(act ? act.name : 'Deleted activity')}</span>
+          <span class="recent-time">${dateStr}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="recent-dur">${formatDuration(s.seconds)}</span>
+          <button class="delete-btn" title="Delete entry" data-id="${s.id}">×</button>
+        </div>
+      `;
+      list.appendChild(li);
+    });
+    list.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        sessions = sessions.filter(s => s.id !== id);
+        saveSessions();
+        renderTotals();
+        renderRecent();
+      });
+    });
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // ---------- PWA install hint (iOS Safari has no install prompt API) ----------
+  function isStandalone(){
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  }
+  const hint = document.getElementById('installHint');
+  if(!isStandalone()){
+    hint.textContent = 'On iPad: tap the Share icon in Safari, then "Add to Home Screen" to install this as an app with its own persistent storage.';
+  }
+
+  // ---------- service worker ----------
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => console.error('SW registration failed:', err));
+    });
+  }
+
+  // ---------- init ----------
+  loadData();
+  renderActivityWheel();
+  renderTimeWheels();
+  renderTotals();
+  renderRecent();
+})();
+</script>
+</body>
+</html>
