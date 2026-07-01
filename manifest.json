@@ -1,7 +1,7 @@
 {
   "name": "Practice Ledger",
   "short_name": "Ledger",
-  "description": "Track time spent on practice activities like piano and hand stands.",
+  "description": "Track time and repetitions spent on practice activities.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

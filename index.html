@@ -79,8 +79,20 @@
     color:var(--grey); margin:0 0 12px;
     display:flex; align-items:center; justify-content:space-between;
   }
+  .section-label .link-btn{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em;
+    background:none; border:none; color:var(--teal); cursor:pointer; text-transform:none;
+    padding:0;
+  }
 
-  .activity-row{display:flex; align-items:stretch; gap:10px; margin-bottom:22px;}
+  .empty-state{
+    text-align:center; padding:28px 12px; color:var(--grey);
+    font-family:'Inter',sans-serif; font-size:14px; line-height:1.6;
+  }
+  .empty-state strong{color:var(--ink); font-family:'Fraunces',serif; font-weight:600; font-size:16px; display:block; margin-bottom:6px;}
+
+  /* ---- Activity picker row ---- */
+  .activity-row{display:flex; align-items:stretch; gap:10px; margin-bottom:16px;}
   .wheel-outer{position:relative; flex:1;}
   .wheel{
     height:132px; overflow-y:scroll; scroll-snap-type:y mandatory;
@@ -121,27 +133,75 @@
   }
   .add-activity-btn:hover{background:#000;}
 
+  .activity-type-tag{
+    display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10px;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--teal);
+    background:rgba(47,92,87,0.12); padding:3px 8px; border-radius:20px; margin-top:2px;
+  }
+
+  /* ---- New activity form ---- */
   .new-activity-form{
-    display:none; gap:8px; margin:-10px 0 18px; align-items:center;
+    display:none; flex-direction:column; gap:12px; margin:-6px 0 18px;
+    background:var(--parchment-dim); padding:16px; border-radius:10px;
   }
   .new-activity-form.open{display:flex;}
-  .new-activity-form input{
-    flex:1; padding:10px 12px; border-radius:8px; border:1px solid var(--hair);
+  .new-activity-form input[type=text]{
+    padding:10px 12px; border-radius:8px; border:1px solid var(--hair);
     font-family:'Inter',sans-serif; font-size:14px; background:#fff;
   }
-  .new-activity-form button{
-    padding:10px 14px; border-radius:8px; border:none; cursor:pointer;
+  .type-choice-label{
+    font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--grey);
+  }
+  .type-choice-row{display:flex; gap:8px;}
+  .type-choice-btn{
+    flex:1; padding:10px 6px; border-radius:8px; border:1.5px solid var(--hair);
+    background:#fff; color:var(--grey); font-family:'Inter',sans-serif; font-size:13px;
+    font-weight:600; cursor:pointer; text-align:center;
+  }
+  .type-choice-btn.selected{
+    border-color:var(--teal); background:rgba(47,92,87,0.1); color:var(--teal);
+  }
+  .form-actions{display:flex; gap:8px;}
+  .form-actions button{
+    flex:1; padding:11px; border-radius:8px; border:none; cursor:pointer;
     font-family:'Inter',sans-serif; font-size:13px; font-weight:600;
   }
   .na-confirm{background:var(--teal); color:#fff;}
+  .na-confirm:disabled{background:#b9c4c1; cursor:not-allowed;}
   .na-cancel{background:transparent; color:var(--grey);}
 
+  /* ---- Manage activities ---- */
+  .manage-list{list-style:none; margin:0; padding:0;}
+  .manage-list li{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:10px 0; border-bottom:1px solid var(--hair);
+  }
+  .manage-list li:last-child{border-bottom:none;}
+  .manage-name{font-family:'Fraunces',serif; font-weight:500; font-size:15px;}
+  .delete-btn{
+    border:none; background:none; color:var(--rust); cursor:pointer;
+    font-size:16px; padding:2px 6px; line-height:1; opacity:.7;
+  }
+  .delete-btn:hover{opacity:1;}
+
+  /* ---- Log mode toggle (for 'both' activities) ---- */
+  .mode-toggle{display:flex; gap:8px; margin-bottom:16px;}
+  .mode-btn{
+    flex:1; padding:10px; border-radius:8px; border:1.5px solid var(--hair);
+    background:#fff; color:var(--grey); font-family:'Inter',sans-serif; font-size:13px;
+    font-weight:600; cursor:pointer;
+  }
+  .mode-btn.selected{border-color:var(--brass); background:rgba(192,138,62,0.12); color:var(--ink);}
+
+  /* ---- Time wheels ---- */
   .time-row{display:flex; gap:10px; margin-bottom:6px;}
   .time-col{flex:1; text-align:center;}
   .time-col .unit-label{
     font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.12em;
     text-transform:uppercase; color:var(--grey); margin-bottom:6px;
   }
+  .reps-row{max-width:220px; margin:0 auto;}
 
   .log-btn{
     width:100%; margin-top:18px; padding:14px; border:none; border-radius:10px;
@@ -151,12 +211,14 @@
     transition:transform .1s, box-shadow .1s;
   }
   .log-btn:active{transform:translateY(1px) scale(.995); box-shadow:0 4px 10px -6px rgba(192,138,62,0.6);}
+  .log-btn:disabled{opacity:.5; cursor:not-allowed;}
 
   .log-confirm{
     text-align:center; font-family:'JetBrains Mono',monospace; font-size:12px;
-    color:var(--teal); height:16px; margin-top:8px;
+    color:var(--teal); min-height:16px; margin-top:8px;
   }
 
+  /* ---- Tables ---- */
   table{width:100%; border-collapse:collapse; font-size:13px;}
   th{
     text-align:right; font-family:'JetBrains Mono',monospace; font-weight:500;
@@ -173,9 +235,10 @@
     color:var(--ink);
   }
   tr:last-child td{border-bottom:none;}
-  .empty-row td{text-align:center; color:var(--grey); font-family:'Inter',sans-serif; padding:24px 0;}
+  .empty-row td{text-align:center; color:var(--grey); font-family:'Inter',sans-serif; padding:20px 0;}
   .total-cell.zero{color:#c3bcac;}
 
+  /* ---- Recent log ---- */
   .recent-list{list-style:none; margin:0; padding:0;}
   .recent-list li{
     display:flex; justify-content:space-between; align-items:center;
@@ -186,11 +249,6 @@
   .recent-activity{font-family:'Fraunces',serif; font-weight:500; color:var(--ink);}
   .recent-time{font-family:'JetBrains Mono',monospace; color:var(--grey); font-size:12px;}
   .recent-dur{font-family:'JetBrains Mono',monospace; font-weight:600;}
-  .delete-btn{
-    border:none; background:none; color:var(--rust); cursor:pointer;
-    font-size:16px; padding:2px 6px; line-height:1; opacity:.6;
-  }
-  .delete-btn:hover{opacity:1;}
 
   .status{font-size:12px; color:var(--grey); text-align:center; margin-top:6px; font-family:'JetBrains Mono',monospace;}
   .install-hint{
@@ -204,68 +262,61 @@
   <header>
     <p class="eyebrow">Session Log</p>
     <h1>Practice Ledger</h1>
-    <p>Pick an activity, dial in the time, and log the session. Totals tally up below.</p>
+    <p>Track time, repetitions, or both — for whatever you're working on.</p>
   </header>
 
   <div class="card">
-    <p class="section-label">Activity</p>
-    <div class="activity-row">
-      <div class="wheel-outer">
-        <div class="wheel" id="activityWheel"></div>
-        <div class="wheel-frame"></div>
-      </div>
-      <button class="add-activity-btn" id="addActivityBtn" title="Add activity">+</button>
-    </div>
+    <p class="section-label">
+      <span>Activity</span>
+      <button class="link-btn" id="manageToggle">Manage</button>
+    </p>
+
+    <div id="activityPickerArea"></div>
 
     <div class="new-activity-form" id="newActivityForm">
-      <input type="text" id="newActivityInput" placeholder="New activity name" maxlength="40">
-      <button class="na-confirm" id="naConfirm">Add</button>
-      <button class="na-cancel" id="naCancel">Cancel</button>
+      <input type="text" id="newActivityInput" placeholder="Activity name" maxlength="40">
+      <div>
+        <div class="type-choice-label" style="margin-bottom:8px;">Track</div>
+        <div class="type-choice-row">
+          <button class="type-choice-btn" data-type="time">Time</button>
+          <button class="type-choice-btn" data-type="reps">Reps</button>
+          <button class="type-choice-btn" data-type="both">Both</button>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="na-confirm" id="naConfirm" disabled>Add activity</button>
+        <button class="na-cancel" id="naCancel">Cancel</button>
+      </div>
     </div>
 
-    <p class="section-label">Duration</p>
-    <div class="time-row">
-      <div class="time-col">
-        <div class="unit-label">Hours</div>
-        <div class="wheel-outer">
-          <div class="wheel wheel-num" id="hourWheel"></div>
-          <div class="wheel-frame"></div>
-        </div>
-      </div>
-      <div class="time-col">
-        <div class="unit-label">Minutes</div>
-        <div class="wheel-outer">
-          <div class="wheel wheel-num" id="minWheel"></div>
-          <div class="wheel-frame"></div>
-        </div>
-      </div>
-      <div class="time-col">
-        <div class="unit-label">Seconds</div>
-        <div class="wheel-outer">
-          <div class="wheel wheel-num" id="secWheel"></div>
-          <div class="wheel-frame"></div>
-        </div>
-      </div>
+    <div class="new-activity-form" id="manageForm">
+      <div class="type-choice-label">Tap × to remove an activity. Its past sessions stay in your totals as "Removed".</div>
+      <ul class="manage-list" id="manageList"></ul>
     </div>
+
+    <div id="logInputArea"></div>
 
     <button class="log-btn" id="logBtn">Log session</button>
     <div class="log-confirm" id="logConfirm"></div>
   </div>
 
   <div class="card">
-    <p class="section-label">Totals</p>
+    <p class="section-label">Time totals</p>
     <table>
       <thead>
-        <tr>
-          <th>Activity</th>
-          <th>Today</th>
-          <th>Week</th>
-          <th>Month</th>
-          <th>Year</th>
-          <th>All&nbsp;time</th>
-        </tr>
+        <tr><th>Activity</th><th>Today</th><th>Week</th><th>Month</th><th>Year</th><th>All&nbsp;time</th></tr>
       </thead>
-      <tbody id="totalsBody"></tbody>
+      <tbody id="timeTotalsBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <p class="section-label">Repetition totals</p>
+    <table>
+      <thead>
+        <tr><th>Activity</th><th>Today</th><th>Week</th><th>Month</th><th>Year</th><th>All&nbsp;time</th></tr>
+      </thead>
+      <tbody id="repsTotalsBody"></tbody>
     </table>
   </div>
 
@@ -281,12 +332,16 @@
 <script>
 (function(){
   const ITEM_H = 44;
-  const STORAGE_KEY_ACTIVITIES = 'pl_activities';
-  const STORAGE_KEY_SESSIONS = 'pl_sessions';
-  let activities = [];
-  let sessions = [];
+  const STORAGE_KEY_ACTIVITIES = 'pl2_activities';
+  const STORAGE_KEY_SESSIONS = 'pl2_sessions';
+  const REPS_MAX = 500;
+
+  let activities = [];         // {id, name, trackType: 'time'|'reps'|'both'}
+  let sessions = [];           // {id, activityId, kind:'time'|'reps', seconds?, reps?, ts}
   let selectedActivityId = null;
-  let selHour = 0, selMin = 0, selSec = 0;
+  let logMode = 'time';        // used only when selected activity trackType === 'both'
+  let selHour = 0, selMin = 0, selSec = 0, selReps = 0;
+  let pendingNewType = null;
 
   const statusLine = document.getElementById('statusLine');
   function setStatus(msg, isErr){
@@ -294,68 +349,44 @@
     statusLine.style.color = isErr ? 'var(--rust)' : 'var(--grey)';
   }
 
-  // ---------- storage (localStorage: synchronous, on-device, persists across closes) ----------
+  // ---------- storage ----------
   function loadData(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY_ACTIVITIES);
-      activities = raw ? JSON.parse(raw) : [
-        {id:'piano', name:'Piano'},
-        {id:'handstands', name:'Hand stands'}
-      ];
-    }catch(e){
-      console.error('Failed to load activities:', e);
-      activities = [{id:'piano', name:'Piano'}, {id:'handstands', name:'Hand stands'}];
-    }
+      activities = raw ? JSON.parse(raw) : [];
+    }catch(e){ console.error('Failed to load activities:', e); activities = []; }
     try{
       const raw = localStorage.getItem(STORAGE_KEY_SESSIONS);
       sessions = raw ? JSON.parse(raw) : [];
-    }catch(e){
-      console.error('Failed to load sessions:', e);
-      sessions = [];
-    }
+    }catch(e){ console.error('Failed to load sessions:', e); sessions = []; }
     if(!selectedActivityId && activities.length) selectedActivityId = activities[0].id;
   }
-
   function saveActivities(){
-    try{
-      localStorage.setItem(STORAGE_KEY_ACTIVITIES, JSON.stringify(activities));
-    }catch(e){
-      console.error('Failed to save activities:', e);
-      setStatus('Could not save activity list.', true);
-    }
+    try{ localStorage.setItem(STORAGE_KEY_ACTIVITIES, JSON.stringify(activities)); }
+    catch(e){ console.error(e); setStatus('Could not save activity list.', true); }
   }
   function saveSessions(){
-    try{
-      localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(sessions));
-    }catch(e){
-      console.error('Failed to save sessions:', e);
-      setStatus('Could not save session.', true);
-    }
+    try{ localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(sessions)); }
+    catch(e){ console.error(e); setStatus('Could not save session.', true); }
   }
 
   // ---------- wheel builder ----------
   function buildWheel(container, items, initialIndex, onSettle){
     container.innerHTML = '';
-    const padTop = document.createElement('div'); padTop.className='wheel-pad';
-    container.appendChild(padTop);
+    container.appendChild(Object.assign(document.createElement('div'), {className:'wheel-pad'}));
     items.forEach((label, i) => {
       const el = document.createElement('div');
       el.className = 'wheel-item';
       el.textContent = label;
       el.dataset.index = i;
-      el.addEventListener('click', () => {
-        container.scrollTo({top: i*ITEM_H, behavior:'smooth'});
-      });
+      el.addEventListener('click', () => container.scrollTo({top: i*ITEM_H, behavior:'smooth'}));
       container.appendChild(el);
     });
-    const padBottom = document.createElement('div'); padBottom.className='wheel-pad';
-    container.appendChild(padBottom);
+    container.appendChild(Object.assign(document.createElement('div'), {className:'wheel-pad'}));
 
     function highlight(idx){
-      const kids = container.querySelectorAll('.wheel-item');
-      kids.forEach(k => k.classList.toggle('center', Number(k.dataset.index) === idx));
+      container.querySelectorAll('.wheel-item').forEach(k => k.classList.toggle('center', Number(k.dataset.index) === idx));
     }
-
     let scrollTimer = null;
     container.addEventListener('scroll', () => {
       const idx = Math.max(0, Math.min(items.length-1, Math.round(container.scrollTop / ITEM_H)));
@@ -366,75 +397,209 @@
         onSettle(settledIdx);
       }, 120);
     });
-
     container.scrollTop = initialIndex * ITEM_H;
     highlight(initialIndex);
     onSettle(initialIndex);
   }
 
-  function renderActivityWheel(){
+  // ---------- activity picker ----------
+  function renderActivityPicker(){
+    const area = document.getElementById('activityPickerArea');
+    if(!activities.length){
+      area.innerHTML = `<div class="empty-state"><strong>No activities yet</strong>Tap the + button below to add your first one — piano, handstands, pushups, whatever you're working on.</div>
+        <div style="text-align:center;"><button class="add-activity-btn" id="addActivityBtn" style="height:44px;line-height:44px;width:100%;border-radius:8px;">+ Add activity</button></div>`;
+      wireAddButton();
+      return;
+    }
+    area.innerHTML = `
+      <div class="activity-row">
+        <div class="wheel-outer">
+          <div class="wheel" id="activityWheel"></div>
+          <div class="wheel-frame"></div>
+        </div>
+        <button class="add-activity-btn" id="addActivityBtn" title="Add activity">+</button>
+      </div>`;
+    wireAddButton();
     const container = document.getElementById('activityWheel');
     const names = activities.map(a => a.name);
     let idx = activities.findIndex(a => a.id === selectedActivityId);
     if(idx < 0) idx = 0;
     buildWheel(container, names, idx, (i) => {
-      if(activities[i]) selectedActivityId = activities[i].id;
+      if(activities[i]){
+        selectedActivityId = activities[i].id;
+        const a = activities[i];
+        logMode = a.trackType === 'reps' ? 'reps' : 'time';
+        renderLogInputArea();
+      }
     });
   }
 
-  function renderTimeWheels(){
-    const hours = Array.from({length:24}, (_,i) => String(i));
-    const mins = Array.from({length:60}, (_,i) => String(i).padStart(2,'0'));
-    const secs = Array.from({length:60}, (_,i) => String(i).padStart(2,'0'));
-    buildWheel(document.getElementById('hourWheel'), hours, selHour, (i)=>{selHour=i;});
-    buildWheel(document.getElementById('minWheel'), mins, selMin, (i)=>{selMin=i;});
-    buildWheel(document.getElementById('secWheel'), secs, selSec, (i)=>{selSec=i;});
+  function wireAddButton(){
+    document.getElementById('addActivityBtn').addEventListener('click', () => {
+      document.getElementById('manageForm').classList.remove('open');
+      const form = document.getElementById('newActivityForm');
+      form.classList.add('open');
+      document.getElementById('newActivityInput').value = '';
+      pendingNewType = null;
+      document.querySelectorAll('.type-choice-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById('naConfirm').disabled = true;
+      document.getElementById('newActivityInput').focus();
+    });
   }
 
-  // ---------- add activity ----------
-  const addBtn = document.getElementById('addActivityBtn');
-  const form = document.getElementById('newActivityForm');
-  const input = document.getElementById('newActivityInput');
-  addBtn.addEventListener('click', () => {
-    form.classList.add('open');
-    input.value = '';
-    input.focus();
-  });
+  // ---------- new activity form ----------
   document.getElementById('naCancel').addEventListener('click', () => {
-    form.classList.remove('open');
+    document.getElementById('newActivityForm').classList.remove('open');
   });
+  document.querySelectorAll('.type-choice-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      pendingNewType = btn.dataset.type;
+      document.querySelectorAll('.type-choice-btn').forEach(b => b.classList.toggle('selected', b === btn));
+      updateAddEnabled();
+    });
+  });
+  const newActivityInput = document.getElementById('newActivityInput');
+  newActivityInput.addEventListener('input', updateAddEnabled);
+  newActivityInput.addEventListener('keydown', (e) => { if(e.key === 'Enter' && !document.getElementById('naConfirm').disabled) addNewActivity(); });
+  function updateAddEnabled(){
+    document.getElementById('naConfirm').disabled = !(newActivityInput.value.trim() && pendingNewType);
+  }
   document.getElementById('naConfirm').addEventListener('click', addNewActivity);
-  input.addEventListener('keydown', (e) => { if(e.key === 'Enter') addNewActivity(); });
 
   function addNewActivity(){
-    const name = input.value.trim();
-    if(!name) return;
+    const name = newActivityInput.value.trim();
+    if(!name || !pendingNewType) return;
     const id = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') + '-' + Date.now().toString(36);
-    activities.push({id, name});
+    activities.push({id, name, trackType: pendingNewType});
     selectedActivityId = id;
-    form.classList.remove('open');
+    logMode = pendingNewType === 'reps' ? 'reps' : 'time';
+    document.getElementById('newActivityForm').classList.remove('open');
     saveActivities();
-    renderActivityWheel();
+    renderActivityPicker();
+    renderLogInputArea();
     renderTotals();
+  }
+
+  // ---------- manage / remove activities ----------
+  document.getElementById('manageToggle').addEventListener('click', () => {
+    document.getElementById('newActivityForm').classList.remove('open');
+    const form = document.getElementById('manageForm');
+    form.classList.toggle('open');
+    if(form.classList.contains('open')) renderManageList();
+  });
+  function renderManageList(){
+    const list = document.getElementById('manageList');
+    list.innerHTML = '';
+    if(!activities.length){
+      list.innerHTML = '<li style="justify-content:center;color:var(--grey);">No activities to manage yet.</li>';
+      return;
+    }
+    activities.forEach(a => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <div>
+          <span class="manage-name">${escapeHtml(a.name)}</span>
+          <span class="activity-type-tag">${a.trackType}</span>
+        </div>
+        <button class="delete-btn" data-id="${a.id}" title="Remove activity">×</button>`;
+      list.appendChild(li);
+    });
+    list.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        activities = activities.filter(a => a.id !== id);
+        if(selectedActivityId === id){
+          selectedActivityId = activities.length ? activities[0].id : null;
+        }
+        saveActivities();
+        renderActivityPicker();
+        renderLogInputArea();
+        renderTotals();
+        renderManageList();
+      });
+    });
+  }
+
+  // ---------- log input area (time wheels / reps wheel / mode toggle) ----------
+  function renderLogInputArea(){
+    const area = document.getElementById('logInputArea');
+    const activity = activities.find(a => a.id === selectedActivityId);
+    if(!activity){ area.innerHTML = ''; return; }
+
+    let html = '';
+    if(activity.trackType === 'both'){
+      html += `
+        <div class="mode-toggle">
+          <button class="mode-btn ${logMode==='time'?'selected':''}" id="modeTimeBtn">Log time</button>
+          <button class="mode-btn ${logMode==='reps'?'selected':''}" id="modeRepsBtn">Log reps</button>
+        </div>`;
+    }
+    const mode = activity.trackType === 'both' ? logMode : activity.trackType;
+
+    if(mode === 'time'){
+      html += `
+        <p class="section-label">Duration</p>
+        <div class="time-row">
+          <div class="time-col"><div class="unit-label">Hours</div>
+            <div class="wheel-outer"><div class="wheel wheel-num" id="hourWheel"></div><div class="wheel-frame"></div></div></div>
+          <div class="time-col"><div class="unit-label">Minutes</div>
+            <div class="wheel-outer"><div class="wheel wheel-num" id="minWheel"></div><div class="wheel-frame"></div></div></div>
+          <div class="time-col"><div class="unit-label">Seconds</div>
+            <div class="wheel-outer"><div class="wheel wheel-num" id="secWheel"></div><div class="wheel-frame"></div></div></div>
+        </div>`;
+    } else {
+      html += `
+        <p class="section-label">Repetitions</p>
+        <div class="reps-row">
+          <div class="wheel-outer"><div class="wheel wheel-num" id="repsWheel"></div><div class="wheel-frame"></div></div>
+        </div>`;
+    }
+    area.innerHTML = html;
+
+    if(activity.trackType === 'both'){
+      document.getElementById('modeTimeBtn').addEventListener('click', () => { logMode='time'; renderLogInputArea(); });
+      document.getElementById('modeRepsBtn').addEventListener('click', () => { logMode='reps'; renderLogInputArea(); });
+    }
+
+    if(mode === 'time'){
+      const hours = Array.from({length:24}, (_,i) => String(i));
+      const mins = Array.from({length:60}, (_,i) => String(i).padStart(2,'0'));
+      const secs = Array.from({length:60}, (_,i) => String(i).padStart(2,'0'));
+      buildWheel(document.getElementById('hourWheel'), hours, selHour, (i)=>{selHour=i;});
+      buildWheel(document.getElementById('minWheel'), mins, selMin, (i)=>{selMin=i;});
+      buildWheel(document.getElementById('secWheel'), secs, selSec, (i)=>{selSec=i;});
+    } else {
+      const reps = Array.from({length:REPS_MAX+1}, (_,i) => String(i));
+      buildWheel(document.getElementById('repsWheel'), reps, selReps, (i)=>{selReps=i;});
+    }
   }
 
   // ---------- log session ----------
   document.getElementById('logBtn').addEventListener('click', () => {
-    const seconds = selHour*3600 + selMin*60 + selSec;
-    if(!selectedActivityId){ setStatus('Add an activity first.', true); return; }
-    if(seconds <= 0){ setStatus('Dial in a duration above 0.', true); return; }
-    const entry = { id: 'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,6), activityId: selectedActivityId, seconds, ts: new Date().toISOString() };
-    sessions.push(entry);
+    const activity = activities.find(a => a.id === selectedActivityId);
+    const confirmEl = document.getElementById('logConfirm');
+    if(!activity){ setStatus('Add an activity first.', true); return; }
+    const mode = activity.trackType === 'both' ? logMode : activity.trackType;
+
+    if(mode === 'time'){
+      const seconds = selHour*3600 + selMin*60 + selSec;
+      if(seconds <= 0){ confirmEl.style.color='var(--rust)'; confirmEl.textContent='Dial in a duration above 0 first.'; return; }
+      sessions.push({ id:'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,6), activityId: activity.id, kind:'time', seconds, ts: new Date().toISOString() });
+      confirmEl.style.color='var(--teal)';
+      confirmEl.textContent = `Logged ${formatDuration(seconds)} — ${activity.name}`;
+    } else {
+      if(selReps <= 0){ confirmEl.style.color='var(--rust)'; confirmEl.textContent='Dial in a rep count above 0 first.'; return; }
+      sessions.push({ id:'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,6), activityId: activity.id, kind:'reps', reps: selReps, ts: new Date().toISOString() });
+      confirmEl.style.color='var(--teal)';
+      confirmEl.textContent = `Logged ${selReps} reps — ${activity.name}`;
+    }
     saveSessions();
     renderTotals();
     renderRecent();
-    const confirmEl = document.getElementById('logConfirm');
-    const actName = (activities.find(a=>a.id===selectedActivityId)||{}).name || 'Activity';
-    confirmEl.textContent = `Logged ${formatDuration(seconds)} — ${actName}`;
-    setTimeout(()=>{ if(confirmEl.textContent.indexOf(actName)>-1) confirmEl.textContent=''; }, 3000);
+    setTimeout(()=>{ if(confirmEl.textContent.indexOf(activity.name)>-1) confirmEl.textContent=''; }, 3000);
   });
 
-  // ---------- time helpers ----------
+  // ---------- helpers ----------
   function formatDuration(totalSeconds){
     const h = Math.floor(totalSeconds/3600);
     const m = Math.floor((totalSeconds%3600)/60);
@@ -443,48 +608,55 @@
     return `${m}:${String(s).padStart(2,'0')}`;
   }
   function startOfDay(d){ const x=new Date(d); x.setHours(0,0,0,0); return x; }
-  function startOfWeek(d){
-    const x = startOfDay(d);
-    const day = (x.getDay()+6)%7;
-    x.setDate(x.getDate()-day);
-    return x;
-  }
+  function startOfWeek(d){ const x=startOfDay(d); const day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); return x; }
   function startOfMonth(d){ const x=new Date(d); x.setDate(1); x.setHours(0,0,0,0); return x; }
   function startOfYear(d){ const x=new Date(d); x.setMonth(0,1); x.setHours(0,0,0,0); return x; }
 
-  function sumFor(activityId, since){
+  function sumFor(activityId, kind, since){
     return sessions
-      .filter(s => s.activityId === activityId && (!since || new Date(s.ts) >= since))
-      .reduce((sum,s) => sum + s.seconds, 0);
+      .filter(s => s.activityId === activityId && s.kind === kind && (!since || new Date(s.ts) >= since))
+      .reduce((sum,s) => sum + (kind === 'time' ? s.seconds : s.reps), 0);
   }
 
   function renderTotals(){
-    const body = document.getElementById('totalsBody');
-    body.innerHTML = '';
-    if(!activities.length){
-      body.innerHTML = '<tr class="empty-row"><td colspan="6">No activities yet — add one above.</td></tr>';
-      return;
-    }
     const now = new Date();
-    const dRanges = { today: startOfDay(now), week: startOfWeek(now), month: startOfMonth(now), year: startOfYear(now) };
+    const ranges = { today: startOfDay(now), week: startOfWeek(now), month: startOfMonth(now), year: startOfYear(now) };
 
-    activities.forEach(a => {
-      const today = sumFor(a.id, dRanges.today);
-      const week = sumFor(a.id, dRanges.week);
-      const month = sumFor(a.id, dRanges.month);
-      const year = sumFor(a.id, dRanges.year);
-      const all = sumFor(a.id, null);
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td class="activity-name">${escapeHtml(a.name)}</td>
-        <td class="total-cell ${today===0?'zero':''}">${formatDuration(today)}</td>
-        <td class="total-cell ${week===0?'zero':''}">${formatDuration(week)}</td>
-        <td class="total-cell ${month===0?'zero':''}">${formatDuration(month)}</td>
-        <td class="total-cell ${year===0?'zero':''}">${formatDuration(year)}</td>
-        <td class="total-cell ${all===0?'zero':''}">${formatDuration(all)}</td>
-      `;
-      body.appendChild(row);
-    });
+    const timeBody = document.getElementById('timeTotalsBody');
+    const timeActs = activities.filter(a => a.trackType === 'time' || a.trackType === 'both');
+    timeBody.innerHTML = '';
+    if(!timeActs.length){
+      timeBody.innerHTML = '<tr class="empty-row"><td colspan="6">No time-tracked activities yet.</td></tr>';
+    } else {
+      timeActs.forEach(a => {
+        const vals = {
+          today: sumFor(a.id,'time',ranges.today), week: sumFor(a.id,'time',ranges.week),
+          month: sumFor(a.id,'time',ranges.month), year: sumFor(a.id,'time',ranges.year), all: sumFor(a.id,'time',null)
+        };
+        const row = document.createElement('tr');
+        row.innerHTML = `<td class="activity-name">${escapeHtml(a.name)}</td>` +
+          ['today','week','month','year','all'].map(k => `<td class="total-cell ${vals[k]===0?'zero':''}">${formatDuration(vals[k])}</td>`).join('');
+        timeBody.appendChild(row);
+      });
+    }
+
+    const repsBody = document.getElementById('repsTotalsBody');
+    const repsActs = activities.filter(a => a.trackType === 'reps' || a.trackType === 'both');
+    repsBody.innerHTML = '';
+    if(!repsActs.length){
+      repsBody.innerHTML = '<tr class="empty-row"><td colspan="6">No repetition-tracked activities yet.</td></tr>';
+    } else {
+      repsActs.forEach(a => {
+        const vals = {
+          today: sumFor(a.id,'reps',ranges.today), week: sumFor(a.id,'reps',ranges.week),
+          month: sumFor(a.id,'reps',ranges.month), year: sumFor(a.id,'reps',ranges.year), all: sumFor(a.id,'reps',null)
+        };
+        const row = document.createElement('tr');
+        row.innerHTML = `<td class="activity-name">${escapeHtml(a.name)}</td>` +
+          ['today','week','month','year','all'].map(k => `<td class="total-cell ${vals[k]===0?'zero':''}">${vals[k]}</td>`).join('');
+        repsBody.appendChild(row);
+      });
+    }
   }
 
   function renderRecent(){
@@ -500,22 +672,21 @@
       const li = document.createElement('li');
       const dt = new Date(s.ts);
       const dateStr = dt.toLocaleDateString(undefined,{month:'short',day:'numeric'}) + ' ' + dt.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+      const valueStr = s.kind === 'time' ? formatDuration(s.seconds) : `${s.reps} reps`;
       li.innerHTML = `
         <div class="recent-left">
-          <span class="recent-activity">${escapeHtml(act ? act.name : 'Deleted activity')}</span>
+          <span class="recent-activity">${escapeHtml(act ? act.name : 'Removed activity')}</span>
           <span class="recent-time">${dateStr}</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
-          <span class="recent-dur">${formatDuration(s.seconds)}</span>
+          <span class="recent-dur">${valueStr}</span>
           <button class="delete-btn" title="Delete entry" data-id="${s.id}">×</button>
-        </div>
-      `;
+        </div>`;
       list.appendChild(li);
     });
     list.querySelectorAll('.delete-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const id = btn.dataset.id;
-        sessions = sessions.filter(s => s.id !== id);
+        sessions = sessions.filter(s => s.id !== btn.dataset.id);
         saveSessions();
         renderTotals();
         renderRecent();
@@ -527,7 +698,7 @@
     return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
-  // ---------- PWA install hint (iOS Safari has no install prompt API) ----------
+  // ---------- PWA install hint ----------
   function isStandalone(){
     return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
   }
@@ -535,8 +706,6 @@
   if(!isStandalone()){
     hint.textContent = 'On iPad: tap the Share icon in Safari, then "Add to Home Screen" to install this as an app with its own persistent storage.';
   }
-
-  // ---------- service worker ----------
   if('serviceWorker' in navigator){
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').catch(err => console.error('SW registration failed:', err));
@@ -545,8 +714,8 @@
 
   // ---------- init ----------
   loadData();
-  renderActivityWheel();
-  renderTimeWheels();
+  renderActivityPicker();
+  renderLogInputArea();
   renderTotals();
   renderRecent();
 })();
